@@ -3,7 +3,12 @@ from __future__ import annotations
 import os
 from typing import Any
 
-from cs336_data.filtering import extract_text_from_html, identify_language
+from cs336_data.filtering import (
+    extract_text_from_html,
+    identify_language,
+    mask_specific_text,
+    MaskType
+)
 
 
 
@@ -16,15 +21,15 @@ def run_identify_language(text: str) -> tuple[Any, float]:
 
 
 def run_mask_emails(text: str) -> tuple[str, int]:
-    raise NotImplementedError
+    return mask_specific_text(text, MaskType.EMAIL)
 
 
 def run_mask_phone_numbers(text: str) -> tuple[str, int]:
-    raise NotImplementedError
+    return mask_specific_text(text, MaskType.PHONE)
 
 
 def run_mask_ips(text: str) -> tuple[str, int]:
-    raise NotImplementedError
+    return mask_specific_text(text, MaskType.IP)
 
 
 def run_classify_nsfw(text: str) -> tuple[Any, float]:
