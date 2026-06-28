@@ -5,11 +5,11 @@ from typing import Any
 
 from cs336_data.filtering import (
     extract_text_from_html,
-    identify_language,
+    get_prediction,
     mask_specific_text,
-    MaskType
+    MaskType,
+    Models
 )
-
 
 
 def run_extract_text_from_html_bytes(html_bytes: bytes) -> str | None:
@@ -17,7 +17,7 @@ def run_extract_text_from_html_bytes(html_bytes: bytes) -> str | None:
 
 
 def run_identify_language(text: str) -> tuple[Any, float]:
-    return identify_language(text)
+    return get_prediction(text, Models.language)
 
 
 def run_mask_emails(text: str) -> tuple[str, int]:
@@ -33,11 +33,11 @@ def run_mask_ips(text: str) -> tuple[str, int]:
 
 
 def run_classify_nsfw(text: str) -> tuple[Any, float]:
-    raise NotImplementedError
+    return get_prediction(text, Models.nsfw)
 
 
 def run_classify_toxic_speech(text: str) -> tuple[Any, float]:
-    raise NotImplementedError
+    return get_prediction(text, Models.hate)
 
 
 def run_classify_quality(text: str) -> tuple[Any, float]:

@@ -1,5 +1,6 @@
 from enum import Enum
 import re
+from dataclasses import dataclass
 
 import fasttext
 from fastwarc.warc import ArchiveIterator, WarcRecordType
@@ -11,15 +12,21 @@ class MaskType(Enum):
     PHONE = "phone"
     IP = "ip"
 
+@dataclass
+class Models:
+    language: str = "local-shared-data/lid.176.bin"
+    nsfw: str = "local-shared-data/jigsaw_fasttext_bigrams_nsfw_final.bin"
+    hate: str = "local-shared-data/jigsaw_fasttext_bigrams_hatespeech_final.bin"
+
 
 def extract_text_from_html(html_bytes: bytes) -> str | None:
     encoding = detect_encoding(html_bytes)
     decoded_html = html_bytes.decode(encoding)
     return extract_plain_text(decoded_html)
 
-def identify_language(text: str) -> tuple[str, float]:
+def get_prediction(text: str, model_path: str) -> tuple[str, float]:
     text = ' '.join([el.strip() for el in text.split('\n')])
-    model = fasttext.load_model("local-shared-data/lid.176.bin")
+    model = fasttext.load_model(model_path)
     pred = model.predict(text)
     return pred[0][0].split('__')[-1], pred[1][0]
 
@@ -45,5 +52,10 @@ if __name__ == "__main__":
         for record in ArchiveIterator(f, record_types=WarcRecordType.response):
             data_bytes = record.reader.read()
             data_str = extract_text_from_html(data_bytes)
-            pred = identify_language(data_str)
-            print(pred)
+            lang = get_prediction(data_str, Models.language)
+            if lang[0] == "en":
+                nsfw = get_prediction(data_str, Models.nsfw)
+                hate = get_prediction(data_str, Models.hate)
+                print(nsfw, hate)
+                print(data_str)
+
