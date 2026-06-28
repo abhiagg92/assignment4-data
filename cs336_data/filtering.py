@@ -1,4 +1,5 @@
 from enum import Enum
+import nltk
 import re
 from dataclasses import dataclass
 
@@ -6,6 +7,8 @@ import fasttext
 from fastwarc.warc import ArchiveIterator, WarcRecordType
 from resiliparse.parse.encoding import detect_encoding
 from resiliparse.extract.html2text import extract_plain_text
+
+nltk.download('punkt_tab')
 
 class MaskType(Enum):
     EMAIL = "email"
@@ -46,6 +49,22 @@ def mask_specific_text(text: str, type: MaskType) -> tuple[str, int]:
 
     return re.subn(regex, repl, text)
 
+def run_quality_filter_gopher(text: str) -> bool:
+    words = nltk.word_tokenize(text)
+    num_words = len(words)
+    mean_word_len = sum([len(w) for w in words])/num_words
+    one_alpha_words = sum([1 for w in words if bool(re.search(r"[A-Za-z]", w))])
+    num_lines = len(text.splitlines())
+    ellipsis_lines = sum([1 for line in text.splitlines() if line[-3:] == "..."])
+    if num_words < 50 or num_words > 100000:
+        return False
+    if mean_word_len < 3 or mean_word_len > 10:
+        return False
+    if one_alpha_words/num_words < 0.8:
+        return False
+    if ellipsis_lines/num_lines > 0.3:
+        return False
+    return True
 
 if __name__ == "__main__":
     with open('local-shared-data/CC-MAIN-20250417135010-20250417165010-00065.warc.gz', 'rb') as f:

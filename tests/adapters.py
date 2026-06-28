@@ -7,6 +7,7 @@ from cs336_data.filtering import (
     extract_text_from_html,
     get_prediction,
     mask_specific_text,
+    run_quality_filter_gopher,
     MaskType,
     Models
 )
@@ -45,7 +46,7 @@ def run_classify_quality(text: str) -> tuple[Any, float]:
 
 
 def run_gopher_quality_filter(text: str) -> bool:
-    raise NotImplementedError
+    return run_quality_filter_gopher(text)
 
 
 def run_exact_line_deduplication(
