@@ -11,7 +11,10 @@ from cs336_data.filtering import (
     MaskType,
     Models
 )
-from cs336_data.deduplication import deduplicate_exact
+from cs336_data.deduplication import (
+    deduplicate_exact,
+    deduplicate_minhash
+)
 
 
 def run_extract_text_from_html_bytes(html_bytes: bytes) -> str | None:
@@ -64,4 +67,11 @@ def run_minhash_deduplication(
     jaccard_threshold: float,
     output_directory: os.PathLike,
 ):
-    raise NotImplementedError
+    return deduplicate_minhash(
+        input_files,
+        num_hashes,
+        num_bands,
+        ngrams,
+        jaccard_threshold,
+        output_directory
+    )
